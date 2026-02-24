@@ -1,0 +1,19 @@
+@model IEnumerable<UniversityWebApp.Models.Course>
+<a href="/Student/Index">Go to Students Page</a>
+<br /><br />
+<h2>All Courses</h2>
+
+<a href="/Course/Create">Create New Course</a>
+<br /><br />
+
+<ul>
+    @foreach (var course in Model)
+    {
+        <li>
+            <strong>@course.Title</strong> (Credits: @course.Credits)
+            <br />
+            <a href="/Course/Details/@course.Id">View Details</a> |
+            <a href="/Course/Delete/@course.Id">Delete</a>
+        </li>
+    }
+</ul>

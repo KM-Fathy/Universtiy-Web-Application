@@ -1,0 +1,26 @@
+@model UniversityWebApp.Models.Course
+
+<h2>Create New Course</h2>
+
+<form asp-action="Create" method="post">
+    <div>
+        <label>Course Title:</label>
+        <br />
+        <input asp-for="Title" />
+    </div>
+    
+    <br />
+
+    <div>
+        <label>Credits:</label>
+        <br />
+        <input asp-for="Credits" type="number" />
+    </div>
+
+    <br />
+
+    <button type="submit">Submit</button>
+</form>
+
+<br />
+<a href="/Course/Index">Back to List</a>

@@ -1,0 +1,15 @@
+@model UniversityWebApp.Models.Course
+
+<h2>Delete Course</h2>
+<p>Are you sure you want to delete this course?</p>
+
+<p><strong>Title:</strong> @Model.Title</p>
+<p><strong>Credits:</strong> @Model.Credits</p>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button type="submit">Yes, Delete</button>
+</form>
+
+<br />
+<a href="/Course/Index">Cancel and Go Back</a>
