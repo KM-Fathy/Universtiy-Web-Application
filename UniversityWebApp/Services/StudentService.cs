@@ -1,84 +1,59 @@
-using System.Collections.Generic;
 using UniversityWebApp.Interfaces;
 using UniversityWebApp.Models;
+using UniversityWebApp.Database;
+using Microsoft.EntityFrameworkCore;
+using UniversityWebApp.DTOs;
 
 namespace UniversityWebApp.Services
 {
     public class StudentService : IStudentService
     {
-        // Simple list declaration
-        private List<Student> students = new List<Student>();
+        private readonly ApplicationDbContext _context;
 
-        // Constructor to add dummy data the "long" way
-        public StudentService()
+        public StudentService(ApplicationDbContext context)
         {
-            Student s1 = new Student();
-            s1.Id = 1;
-            s1.Name = "Mohamed";
-            s1.Major = "Computer Engineering";
-            students.Add(s1);
-
-            Student s2 = new Student();
-            s2.Id = 2;
-            s2.Name = "Kareem";
-            s2.Major = "Electonics and Communication Engineering";
-            students.Add(s2);
-
-            Student s3 = new Student();
-            s3.Id = 3;
-            s3.Name = "Ahmed";
-            s3.Major = "Mechanical Engineering";
-            students.Add(s3);
-
-            Student s4 = new Student();
-            s4.Id = 4;
-            s4.Name = "Ali";
-            s4.Major = "Compputer Science";
-            students.Add(s4);
+            _context = context;
         }
+        
 
-        public IEnumerable<Student> GetAll()
+        public async Task<IEnumerable<StudentDto>> GetAllStudents()
         {
-            return students;
-        }
-
-        public Student GetById(int id)
-        {
-            // Using a basic foreach loop instead of advanced LINQ
-            foreach (var student in students)
+            return await _context.Students.Include(s => s.Courses).AsNoTracking().Select(s => new StudentDto
             {
-                if (student.Id == id)
-                {
-                    return student;
-                }
+                Id = s.Id,
+                Name = s.Name,
+                CourseTitles = s.Courses.Select(c => c.Title).ToList()
             }
-            return null;
+            ).ToListAsync();
         }
 
-        public void Add(Student student)
+        public async Task<StudentDto?> GetById(int id)
         {
-            int newId = students.Count + 1;
-            student.Id = newId;
+            var student = await _context.Students.Include(s => s.Courses).FirstOrDefaultAsync(s => s.Id == id);
+            if (student == null) return null;
 
-            students.Add(student);
+            return new StudentDto
+            {
+                Id = student.Id,
+                Name = student.Name,
+                CourseTitles = student.Courses.Select(c => c.Title).ToList()
+            };
         }
 
-        public void Delete(int id)
+        public async Task Add(Student student)
         {
-            Student studentToRemove = null;
+            await _context.Students.AddAsync(student);
+            await _context.SaveChangesAsync();
+        }
 
-            foreach (var student in students)
+        public async Task Delete(int id)
+        {
+            
+            var student = await _context.Students.FindAsync(id);
+            if (student != null)
             {
-                if (student.Id == id)
-                {
-                    studentToRemove = student;
-                    break;
-                }
-            }
-
-            if (studentToRemove != null)
-            {
-                students.Remove(studentToRemove);
+                _context.Students.Remove(student);
+                await _context.SaveChangesAsync();
             }
         }
     }

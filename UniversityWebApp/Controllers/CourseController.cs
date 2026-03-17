@@ -6,22 +6,22 @@ namespace UniversityWebApp.Controllers
 {
     public class CourseController : Controller
     {
-        private readonly ICourseService _service;
+        private readonly ICourseService courseService;
 
         public CourseController(ICourseService service)
         {
-            _service = service;
+            courseService = service;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var allCourses = _service.GetAll();
+            var allCourses = await courseService.GetAllCourses();
             return View(allCourses);
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var course = _service.GetById(id);
+            var course = await courseService.GetById(id);
 
             if (course == null)
             {
@@ -31,21 +31,21 @@ namespace UniversityWebApp.Controllers
             return View(course);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult Create(Course course)
+        public async Task<IActionResult> add(Course course)
         {
-            _service.Add(course);
+            await courseService.Add(course);
             return RedirectToAction("Index");
         }
-
-        public IActionResult Delete(int id)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            var course = _service.GetById(id);
+            var course = await courseService.GetById(id);
             if (course == null)
             {
                 return NotFound();
@@ -54,9 +54,9 @@ namespace UniversityWebApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            _service.Delete(id);
+            await courseService.Delete(id);
             return RedirectToAction("Index");
         }
     }

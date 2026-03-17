@@ -1,70 +1,44 @@
-using System.Collections.Generic;
 using UniversityWebApp.Interfaces;
 using UniversityWebApp.Models;
+using UniversityWebApp.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace UniversityWebApp.Services
 {
     public class CourseService : ICourseService
     {
-        private List<Course> courses = new List<Course>();
+        private readonly ApplicationDbContext _context;
 
-        public CourseService()
+        public CourseService(ApplicationDbContext context)
         {
-            Course c1 = new Course();
-            c1.Id = 101;
-            c1.Title = "Web Engineering";
-            c1.Credits = 3;
-            courses.Add(c1);
-
-            Course c2 = new Course();
-            c2.Id = 102;
-            c2.Title = "Data Structures";
-            c2.Credits = 4;
-            courses.Add(c2);
+            _context = context;
         }
 
-        public IEnumerable<Course> GetAll()
+        public async Task<IEnumerable<Course>> GetAllCourses()
         {
-            return courses;
+            return await _context.Courses.Include(c => c.Students).ToListAsync();
         }
 
-        public Course GetById(int id)
+        public async Task<Course?> GetById(int id)
         {
-            foreach (var course in courses)
+            return await _context.Courses.Include(c => c.Students).FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task Add(Course course)
+        {
+            await _context.Courses.AddAsync(course);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task Delete(int id)
+        {
+            var course = await _context.Courses.FindAsync(id);
+            if (course != null)
             {
-                if (course.Id == id)
-                {
-                    return course;
-                }
-            }
-            return null;
-        }
-
-        public void Add(Course course)
-        {
-            int newId = courses.Count + 101;
-            course.Id = newId;
-
-            courses.Add(course);
-        }
-
-        public void Delete(int id)
-        {
-            Course courseToRemove = null;
-
-            foreach (var course in courses)
-            {
-                if (course.Id == id)
-                {
-                    courseToRemove = course;
-                    break;
-                }
-            }
-
-            if (courseToRemove != null)
-            {
-                courses.Remove(courseToRemove);
+                _context.Courses.Remove(course);
+                await _context.SaveChangesAsync();
             }
         }
     }
 }
+                 

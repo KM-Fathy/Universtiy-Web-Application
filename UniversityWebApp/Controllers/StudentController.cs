@@ -6,22 +6,22 @@ namespace UniversityApp.Controllers
 {
     public class StudentController : Controller
     {
-        private readonly IStudentService _service;
+        private readonly IStudentService studentService;
 
         public StudentController(IStudentService service)
         {
-            _service = service;
+            studentService = service;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var allStudents = _service.GetAll();
+            var allStudents = await studentService.GetAllStudents();
             return View(allStudents);
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var student = _service.GetById(id);
+            var student = await studentService.GetById(id);
 
             if (student == null)
             {
@@ -31,21 +31,22 @@ namespace UniversityApp.Controllers
             return View(student);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult Create(Student student)
+        public async Task<IActionResult> add(Student student)
         {
-            _service.Add(student);
+            await studentService.Add(student);
             return RedirectToAction("Index");
+        
         }
-
-        public IActionResult Delete(int id)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            var student = _service.GetById(id);
+            var student = await studentService.GetById(id);
             if (student == null)
             {
                 return NotFound();
@@ -54,9 +55,9 @@ namespace UniversityApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            _service.Delete(id);
+            await studentService.Delete(id);
             return RedirectToAction("Index");
         }
     }
