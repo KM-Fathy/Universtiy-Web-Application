@@ -2,6 +2,7 @@ using UniversityWebApp.Interfaces;
 using UniversityWebApp.Models;
 using UniversityWebApp.Database;
 using Microsoft.EntityFrameworkCore;
+using UniversityWebApp.DTOs;
 
 namespace UniversityWebApp.Services
 {
@@ -13,15 +14,29 @@ namespace UniversityWebApp.Services
         {
             _context = context;
         }
-        public async Task<IEnumerable<StudentProfile>> GetAllStudentProfiles()
+        public async Task<IEnumerable<StudentProfileDto>> GetAllStudentProfiles()
         {
-            return await _context.StudentProfiles.Include(p => p.Student).AsNoTracking().ToListAsync();
+            return await _context.StudentProfiles.AsNoTracking().Select(sp => new StudentProfileDto
+            {
+                Id = sp.Id,
+                Address = sp.Address,
+                DateOfBirth = sp.DateOfBirth,
+                StudentId = sp.Student.Id
+            }).ToListAsync();
         }
 
-        public async Task<StudentProfile?> GetStudentProfileById(int id)
+        public async Task<StudentProfileDto?> GetStudentProfileById(int id)
         {
-            return await _context.StudentProfiles.Include(p => p.Student).FirstOrDefaultAsync(p => p.Id == id);  
- 
+            var studentProfile = await _context.StudentProfiles.Include(sp => sp.Student).FirstOrDefaultAsync(sp => sp.Id == id);
+            if (studentProfile == null) return null;
+
+            return new StudentProfileDto
+            {
+                Id = studentProfile.Id,
+                Address = studentProfile.Address,
+                DateOfBirth = studentProfile.DateOfBirth,
+                StudentId = studentProfile.Student.Id
+            };
         }
 
         public async Task AddStudentProfile(StudentProfile profile)
@@ -29,7 +44,21 @@ namespace UniversityWebApp.Services
             await _context.StudentProfiles.AddAsync(profile);
             await _context.SaveChangesAsync();
         }
-        
+
+        public async Task UpdateStudentProfile(StudentProfileUpdateDto profileDto)
+        {
+            var existing = await _context.StudentProfiles.FindAsync(profileDto.Id);
+
+            if (existing != null)
+            {
+                existing.Address = profileDto.Address;
+                existing.DateOfBirth = profileDto.DateOfBirth;
+                existing.StudentId = profileDto.StudentId;
+                
+                _context.StudentProfiles.Update(existing);
+                await _context.SaveChangesAsync();
+            }
+        } 
 
         public async Task DeleteStudentProfile(int id)
         {

@@ -6,6 +6,5 @@ namespace UniversityWebApp.DTOs
         public string Name { get; set; }
         public List<string> CourseTitles { get; set; }
         public string DepartmentName { get; set; }
-
     }
 }

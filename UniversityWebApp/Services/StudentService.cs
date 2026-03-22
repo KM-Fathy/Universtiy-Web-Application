@@ -24,8 +24,7 @@ namespace UniversityWebApp.Services
                 Name = s.Name,
                 CourseTitles = s.Courses.Select(c => c.Title).ToList(),
                 DepartmentName = s.Department.Name
-            }
-            ).ToListAsync();
+            }).ToListAsync();
         }
 
         public async Task<StudentDto?> GetStudentById(int id)
@@ -42,6 +41,12 @@ namespace UniversityWebApp.Services
             };
         }
 
+        public async Task AddStudent(Student student)
+        {
+            await _context.Students.AddAsync(student);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task UpdateStudent(StudentUpdateDto studentDto)
         {
             var existingStudent = await _context.Students.FindAsync(studentDto.Id);
@@ -55,12 +60,6 @@ namespace UniversityWebApp.Services
                 _context.Students.Update(existingStudent); 
                 await _context.SaveChangesAsync();
             }
-        }
-
-        public async Task AddStudent(Student student)
-        {
-            await _context.Students.AddAsync(student);
-            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteStudent(int id)

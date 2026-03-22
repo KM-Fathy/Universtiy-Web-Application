@@ -2,6 +2,7 @@ using UniversityWebApp.Interfaces;
 using UniversityWebApp.Models;
 using UniversityWebApp.Database;
 using Microsoft.EntityFrameworkCore;
+using UniversityWebApp.DTOs;
 
 namespace UniversityWebApp.Services
 {
@@ -14,20 +15,46 @@ namespace UniversityWebApp.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Course>> GetAllCourses()
+        public async Task<IEnumerable<CourseDto>> GetAllCourses()
         {
-            return await _context.Courses.Include(c => c.Students).ToListAsync();
+            return await _context.Courses.AsNoTracking().Select(c => new CourseDto
+            {
+                Id = c.Id,
+                Title = c.Title,
+                Credits = c.Credits
+            }).ToListAsync();
         }
 
-        public async Task<Course?> GetCourseById(int id)
+        public async Task<CourseDto?> GetCourseById(int id)
         {
-            return await _context.Courses.Include(c => c.Students).FirstOrDefaultAsync(c => c.Id == id);
+            var course = await _context.Courses.Include(c => c.Students).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+            if (course == null) return null;
+
+            return new CourseDto
+            {
+                Id = course.Id,
+                Title = course.Title,
+                Credits = course.Credits
+            };           
         }
 
         public async Task AddCourse(Course course)
         {
             await _context.Courses.AddAsync(course);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateCourse(CourseUpdateDto courseDto)
+        {
+            var existing = await _context.Courses.FindAsync(courseDto.Id);
+            if (existing != null)
+            {
+                existing.Title = courseDto.Title;
+                existing.Credits = courseDto.Credits;
+
+                _context.Courses.Update(existing);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteCourse(int id)
@@ -39,6 +66,8 @@ namespace UniversityWebApp.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+        
     }
 }
                  

@@ -1,13 +1,14 @@
-using System.Collections.Generic;
+using UniversityWebApp.DTOs;
 using UniversityWebApp.Models;
 
 namespace UniversityWebApp.Interfaces
 {
     public interface ICourseService
     {
-        Task<IEnumerable<Course>> GetAllCourses();
-        Task<Course?> GetCourseById(int id);
+        Task<IEnumerable<CourseDto>> GetAllCourses();
+        Task<CourseDto?> GetCourseById(int id);
         Task AddCourse(Course course);
+        Task UpdateCourse(CourseUpdateDto courseDto);
         Task DeleteCourse(int id);
     }
 }

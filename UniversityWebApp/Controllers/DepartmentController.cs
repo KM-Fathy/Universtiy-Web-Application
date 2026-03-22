@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UniversityWebApp.Interfaces;
 using UniversityWebApp.Models;
+using UniversityWebApp.DTOs;
 
 namespace UniversityApp.Controllers
 {
@@ -36,10 +37,26 @@ namespace UniversityApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddDepartment(Department department)
+        public async Task<IActionResult> AddDepartment([FromBody] DepartmentCreateDto departmentDto)
         {
+            var department = new Department
+            {
+                Name = departmentDto.Name
+            };
+
             await departmentService.AddDepartment(department);
-            return RedirectToAction("Index");
+
+            return Ok(new { Message = "Department created successfully." });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateDepartment(int id, [FromBody] DepartmentUpdateDto departmentDto)
+        {
+            if (id != departmentDto.Id) return BadRequest("ID mismatch.");
+
+            await departmentService.UpdateDepartment(departmentDto);
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]

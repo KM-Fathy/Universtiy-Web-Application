@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UniversityWebApp.Interfaces;
 using UniversityWebApp.Models;
+using UniversityWebApp.DTOs;
 
 namespace UniversityWebApp.Controllers
 {
@@ -35,10 +36,30 @@ namespace UniversityWebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCourse(Course course)
+        public async Task<IActionResult> AddCourse([FromBody] CourseCreateDto courseDto)
         {
+            var course = new Course 
+            { 
+                Title = courseDto.Title, 
+                Credits = courseDto.Credits 
+            };
+
             await courseService.AddCourse(course);
-            return RedirectToAction("Index");
+            
+            return Ok(new { Message = "Course created successfully." });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCourse(int id, [FromBody] CourseUpdateDto courseDto)
+        {
+            if (id != courseDto.Id)
+            {
+                return BadRequest("ID mismatch.");
+            }
+
+            await courseService.UpdateCourse(courseDto);
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
@@ -49,6 +70,9 @@ namespace UniversityWebApp.Controllers
             {
                 return NotFound();
             }
+
+            await courseService.DeleteCourse(id);
+            
             return Ok(course);
         }
     }
