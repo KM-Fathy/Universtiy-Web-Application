@@ -4,6 +4,8 @@ using UniversityWebApp.Models;
 
 namespace UniversityWebApp.Controllers
 {
+    [Route("courses")]
+    [ApiController]
     public class CourseController : Controller
     {
         private readonly ICourseService courseService;
@@ -12,52 +14,42 @@ namespace UniversityWebApp.Controllers
         {
             courseService = service;
         }
-
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> GetAllCourses()
         {
             var allCourses = await courseService.GetAllCourses();
-            return View(allCourses);
+            return Ok(allCourses);
         }
 
-        public async Task<IActionResult> Details(int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCourseById(int id)
         {
-            var course = await courseService.GetById(id);
+            var course = await courseService.GetCourseById(id);
 
             if (course == null)
             {
                 return NotFound();
             }
 
-            return View(course);
-        }
-
-        public async Task<IActionResult> Create()
-        {
-            return View();
+            return Ok(course);
         }
 
         [HttpPost]
-        public async Task<IActionResult> add(Course course)
+        public async Task<IActionResult> AddCourse(Course course)
         {
-            await courseService.Add(course);
+            await courseService.AddCourse(course);
             return RedirectToAction("Index");
         }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Delete(int id)
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCourse(int id)
         {
-            var course = await courseService.GetById(id);
+            var course = await courseService.GetCourseById(id);
             if (course == null)
             {
                 return NotFound();
             }
-            return View(course);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            await courseService.Delete(id);
-            return RedirectToAction("Index");
+            return Ok(course);
         }
     }
 }

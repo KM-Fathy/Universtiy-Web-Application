@@ -6,8 +6,8 @@ namespace UniversityWebApp.Interfaces
     public interface ICourseService
     {
         Task<IEnumerable<Course>> GetAllCourses();
-        Task<Course?> GetById(int id);
-        Task Add(Course course);
-        Task Delete(int id);
+        Task<Course?> GetCourseById(int id);
+        Task AddCourse(Course course);
+        Task DeleteCourse(int id);
     }
 }

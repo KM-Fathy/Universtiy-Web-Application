@@ -4,7 +4,9 @@ using UniversityWebApp.Models;
 
 namespace UniversityApp.Controllers
 {
-    public class StudentController : Controller
+    [Route("students")]
+    [ApiController]
+    public class StudentController : ControllerBase
     {
         private readonly IStudentService studentService;
 
@@ -12,53 +14,43 @@ namespace UniversityApp.Controllers
         {
             studentService = service;
         }
-
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> GetAllStudents()
         {
             var allStudents = await studentService.GetAllStudents();
-            return View(allStudents);
+            return Ok(allStudents);
         }
 
-        public async Task<IActionResult> Details(int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetStudentById(int id)
         {
-            var student = await studentService.GetById(id);
+            var student = await studentService.GetStudentById(id);
 
             if (student == null)
             {
                 return NotFound();
             }
 
-            return View(student);
-        }
-
-        public async Task<IActionResult> Create()
-        {
-            return View();
+            return Ok(student);
         }
 
         [HttpPost]
-        public async Task<IActionResult> add(Student student)
+        public async Task<IActionResult> AddStudent(Student student)
         {
-            await studentService.Add(student);
+            await studentService.AddStudent(student);
             return RedirectToAction("Index");
         
         }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteStudent(int id)
         {
-            var student = await studentService.GetById(id);
+            var student = await studentService.GetStudentById(id);
             if (student == null)
             {
                 return NotFound();
             }
-            return View(student);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            await studentService.Delete(id);
-            return RedirectToAction("Index");
+            return Ok(student);
         }
     }
 }

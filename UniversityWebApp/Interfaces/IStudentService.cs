@@ -7,9 +7,9 @@ namespace UniversityWebApp.Interfaces
     public interface IStudentService
     {
         Task<IEnumerable<StudentDto>> GetAllStudents();
-        Task<StudentDto?> GetById(int id);
-        Task Add(Student student);
-        Task Delete(int id);
+        Task<StudentDto?> GetStudentById(int id);
+        Task AddStudent(Student student);
+        Task DeleteStudent(int id);
     }
     
 }
