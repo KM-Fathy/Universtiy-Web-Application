@@ -22,14 +22,15 @@ namespace UniversityWebApp.Services
             {
                 Id = s.Id,
                 Name = s.Name,
-                CourseTitles = s.Courses.Select(c => c.Title).ToList()
+                CourseTitles = s.Courses.Select(c => c.Title).ToList(),
+                DepartmentName = s.Department.Name
             }
             ).ToListAsync();
         }
 
         public async Task<StudentDto?> GetStudentById(int id)
         {
-            var student = await _context.Students.Include(s => s.Courses).FirstOrDefaultAsync(s => s.Id == id);
+            var student = await _context.Students.Include(s => s.Courses).Include(s => s.Department).FirstOrDefaultAsync(s => s.Id == id);
             if (student == null) return null;
 
             return new StudentDto
@@ -39,6 +40,21 @@ namespace UniversityWebApp.Services
                 CourseTitles = student.Courses.Select(c => c.Title).ToList(),
                 DepartmentName = student.Department.Name
             };
+        }
+
+        public async Task UpdateStudent(StudentUpdateDto studentDto)
+        {
+            var existingStudent = await _context.Students.FindAsync(studentDto.Id);
+
+            if (existingStudent != null)
+            {
+                existingStudent.Name = studentDto.Name;
+                existingStudent.Major = studentDto.Major;
+                existingStudent.DepartmentId = studentDto.DepartmentId;
+
+                _context.Students.Update(existingStudent); 
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task AddStudent(Student student)

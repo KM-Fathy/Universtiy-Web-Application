@@ -29,6 +29,7 @@ namespace UniversityWebApp.Services
             await _context.StudentProfiles.AddAsync(profile);
             await _context.SaveChangesAsync();
         }
+        
 
         public async Task DeleteStudentProfile(int id)
         {

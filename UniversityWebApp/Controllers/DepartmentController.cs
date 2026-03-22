@@ -46,7 +46,13 @@ namespace UniversityApp.Controllers
         public async Task<IActionResult> DeleteDepartment(int id)
         {
             var department = await departmentService.GetDepartmentById(id);
-            if (department == null) return NotFound();
+            if (department == null)
+            {
+                return NotFound();
+            }
+
+            await departmentService.DeleteDepartment(id);
+
             return Ok(department);
         }
     }

@@ -41,6 +41,7 @@ namespace UniversityApp.Controllers
             await profileService.AddStudentProfile(profile);
             return RedirectToAction("Index");
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStudentProfile(int id)
         {
@@ -50,6 +51,8 @@ namespace UniversityApp.Controllers
             {
                 return NotFound();
             }
+
+            await profileService.DeleteStudentProfile(id);
 
             return Ok(profile);
         }
