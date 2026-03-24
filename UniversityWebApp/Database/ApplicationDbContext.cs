@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using UniversityWebApp.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 
 namespace UniversityWebApp.Database
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

@@ -9,7 +9,7 @@ namespace UniversityWebApp.Interfaces
         Task<IEnumerable<StudentProfileDto>> GetAllStudentProfiles();
         Task<StudentProfileDto?> GetStudentProfileById(int id);
         Task AddStudentProfile(StudentProfile profile);
-        Task UpdateStudentProfile(StudentProfileUpdateDto profileDto);
+        Task UpdateStudentProfile(StudentProfileUpdateDto profileDto, int id);
         Task DeleteStudentProfile(int id);
     }
 }

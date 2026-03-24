@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace UniversityWebApp.DTOs
 {
-    public class DepartmentUpdateDto : DepartmentCreateDto
+    public class DepartmentUpdateDto
     {
         [Required]
-        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }

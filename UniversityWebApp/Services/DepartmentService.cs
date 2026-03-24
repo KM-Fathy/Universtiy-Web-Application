@@ -42,9 +42,9 @@ namespace UniversityWebApp.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateDepartment(DepartmentUpdateDto departmentDto)
+        public async Task UpdateDepartment(DepartmentUpdateDto departmentDto, int id)
         {
-            var existing = await _context.Departments.FindAsync(departmentDto.Id);
+            var existing = await _context.Departments.FindAsync(id);
             if (existing != null)
             {
                 existing.Name = departmentDto.Name;

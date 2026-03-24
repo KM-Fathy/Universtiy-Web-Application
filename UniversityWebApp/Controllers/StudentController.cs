@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using UniversityWebApp.Interfaces;
 using UniversityWebApp.Models;
 using UniversityWebApp.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UniversityApp.Controllers
 {
     [Route("students")]
     [ApiController]
+    [Authorize]
     public class StudentController : ControllerBase
     {
         private readonly IStudentService studentService;
@@ -36,6 +38,7 @@ namespace UniversityApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddStudent([FromBody] StudentCreateDto studentDto)
         {
             var student = new Student
@@ -50,20 +53,31 @@ namespace UniversityApp.Controllers
             return Ok(new { Message = "Student created successfully." });
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateStudent(int id, [FromBody] StudentUpdateDto studentDto)
+        [HttpPost("{id}/courses/{courseId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RegisterInCourse(int id, int courseId)
         {
-            if (id != studentDto.Id)
+            var success = await studentService.RegisterStudentInCourse(id, courseId);
+
+            if (!success)
             {
-                return BadRequest("ID in URL does not match ID in the request body.");
+                return BadRequest("Registration failed. Please check if the student and course IDs are correct, or if the student is already registered.");
             }
-            
-            await studentService.UpdateStudent(studentDto);
+
+            return Ok(new { Message = "Student registered in the course successfully." });
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStudent(int id, [FromBody] StudentUpdateDto studentDto)
+        {     
+            await studentService.UpdateStudent(studentDto, id);
             
             return NoContent(); 
         }
         
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteStudent(int id)
         {
             var student = await studentService.GetStudentById(id);

@@ -27,7 +27,7 @@ namespace UniversityWebApp.Services
 
         public async Task<StudentProfileDto?> GetStudentProfileById(int id)
         {
-            var studentProfile = await _context.StudentProfiles.Include(sp => sp.Student).FirstOrDefaultAsync(sp => sp.Id == id);
+            var studentProfile = await _context.StudentProfiles.Include(sp => sp.Student).AsNoTracking().FirstOrDefaultAsync(sp => sp.Id == id);
             if (studentProfile == null) return null;
 
             return new StudentProfileDto
@@ -45,15 +45,14 @@ namespace UniversityWebApp.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateStudentProfile(StudentProfileUpdateDto profileDto)
+        public async Task UpdateStudentProfile(StudentProfileUpdateDto profileDto, int id)
         {
-            var existing = await _context.StudentProfiles.FindAsync(profileDto.Id);
+            var existing = await _context.StudentProfiles.FindAsync(id);
 
             if (existing != null)
             {
                 existing.Address = profileDto.Address;
                 existing.DateOfBirth = profileDto.DateOfBirth;
-                existing.StudentId = profileDto.StudentId;
                 
                 _context.StudentProfiles.Update(existing);
                 await _context.SaveChangesAsync();

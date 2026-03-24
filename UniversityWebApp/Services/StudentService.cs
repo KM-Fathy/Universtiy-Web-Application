@@ -29,7 +29,7 @@ namespace UniversityWebApp.Services
 
         public async Task<StudentDto?> GetStudentById(int id)
         {
-            var student = await _context.Students.Include(s => s.Courses).Include(s => s.Department).FirstOrDefaultAsync(s => s.Id == id);
+            var student = await _context.Students.Include(s => s.Courses).Include(s => s.Department).AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
             if (student == null) return null;
 
             return new StudentDto
@@ -46,10 +46,39 @@ namespace UniversityWebApp.Services
             await _context.Students.AddAsync(student);
             await _context.SaveChangesAsync();
         }
-
-        public async Task UpdateStudent(StudentUpdateDto studentDto)
+        
+        public async Task<bool> RegisterStudentInCourse(int studentId, int courseId)
         {
-            var existingStudent = await _context.Students.FindAsync(studentDto.Id);
+            // Get the student and include their courses so we can add to the list
+            var student = await _context.Students
+                .Include(s => s.Courses)
+                .FirstOrDefaultAsync(s => s.Id == studentId);
+
+            // Get the course
+            var course = await _context.Courses.FindAsync(courseId);
+
+            // Make sure both exist
+            if (student == null || course == null)
+            {
+                return false; 
+            }
+
+            // Prevent adding the same course twice
+            if (student.Courses.Any(c => c.Id == courseId))
+            {
+                return false;
+            }
+
+            // Add the course to the student and save
+            student.Courses.Add(course);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task UpdateStudent(StudentUpdateDto studentDto, int id)
+        {
+            var existingStudent = await _context.Students.FindAsync(id);
 
             if (existingStudent != null)
             {

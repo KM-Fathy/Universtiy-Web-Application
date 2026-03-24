@@ -44,9 +44,9 @@ namespace UniversityWebApp.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateCourse(CourseUpdateDto courseDto)
+        public async Task UpdateCourse(CourseUpdateDto courseDto, int id)
         {
-            var existing = await _context.Courses.FindAsync(courseDto.Id);
+            var existing = await _context.Courses.FindAsync(id);
             if (existing != null)
             {
                 existing.Title = courseDto.Title;

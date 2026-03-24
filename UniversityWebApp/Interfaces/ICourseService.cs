@@ -8,7 +8,7 @@ namespace UniversityWebApp.Interfaces
         Task<IEnumerable<CourseDto>> GetAllCourses();
         Task<CourseDto?> GetCourseById(int id);
         Task AddCourse(Course course);
-        Task UpdateCourse(CourseUpdateDto courseDto);
+        Task UpdateCourse(CourseUpdateDto courseDto, int id);
         Task DeleteCourse(int id);
     }
 }

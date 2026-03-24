@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using UniversityWebApp.Interfaces;
 using UniversityWebApp.Models;
 using UniversityWebApp.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UniversityWebApp.Controllers
 {
     [Route("courses")]
     [ApiController]
+    [Authorize]
     public class CourseController : Controller
     {
         private readonly ICourseService courseService;
@@ -34,8 +36,9 @@ namespace UniversityWebApp.Controllers
 
             return Ok(course);
         }
-
+        
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddCourse([FromBody] CourseCreateDto courseDto)
         {
             var course = new Course 
@@ -50,19 +53,16 @@ namespace UniversityWebApp.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCourse(int id, [FromBody] CourseUpdateDto courseDto)
         {
-            if (id != courseDto.Id)
-            {
-                return BadRequest("ID mismatch.");
-            }
-
-            await courseService.UpdateCourse(courseDto);
+            await courseService.UpdateCourse(courseDto, id);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
             var course = await courseService.GetCourseById(id);

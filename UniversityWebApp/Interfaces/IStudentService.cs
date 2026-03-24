@@ -9,7 +9,8 @@ namespace UniversityWebApp.Interfaces
         Task<IEnumerable<StudentDto>> GetAllStudents();
         Task<StudentDto?> GetStudentById(int id);
         Task AddStudent(Student student);
-        Task UpdateStudent(StudentUpdateDto studentDto);
+        Task<bool> RegisterStudentInCourse(int studentId, int courseId);
+        Task UpdateStudent(StudentUpdateDto studentDto, int id);
         Task DeleteStudent(int id);
     }
     

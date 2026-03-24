@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using UniversityWebApp.Interfaces;
 using UniversityWebApp.Models;
 using UniversityWebApp.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UniversityApp.Controllers
 {
     [Route("studentprofiles")]
     [ApiController]
+    [Authorize]
     public class StudentProfileController : Controller
     {
         private readonly IStudentProfileService profileService;
@@ -37,6 +39,7 @@ namespace UniversityApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddStudentProfile([FromBody] StudentProfileCreateDto profileDto)
         {
             var profile = new StudentProfile
@@ -52,20 +55,17 @@ namespace UniversityApp.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateStudentProfile(int id, [FromBody] StudentProfileUpdateDto profileDto)
         {
-            if (id != profileDto.Id)
-            {
-                return BadRequest("ID mismatch.");
-            }
-
-            await profileService.UpdateStudentProfile(profileDto);
+            await profileService.UpdateStudentProfile(profileDto, id);
 
             return NoContent();
         }
 
         
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteStudentProfile(int id)
         {
             var profile = await profileService.GetStudentProfileById(id);

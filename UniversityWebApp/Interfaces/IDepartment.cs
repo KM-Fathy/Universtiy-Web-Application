@@ -10,7 +10,7 @@ namespace UniversityWebApp.Interfaces
         Task<IEnumerable<DepartmentDto>> GetAllDepartments();
         Task<DepartmentDto?> GetDepartmentById(int id);
         Task AddDepartment(Department department);
-        Task UpdateDepartment(DepartmentUpdateDto departmentDto);
+        Task UpdateDepartment(DepartmentUpdateDto departmentDto, int id);
         Task DeleteDepartment(int id);
     }
 }

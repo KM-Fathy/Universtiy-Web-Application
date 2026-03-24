@@ -2,10 +2,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace UniversityWebApp.DTOs
 {
-    public class StudentProfileUpdateDto : StudentProfileCreateDto
+    public class StudentProfileUpdateDto
     {
         [Required]
-        public int Id { get; set; }
+        public string Address { get; set; }
+
+        [Required]
+        public DateTime DateOfBirth { get; set; }
     }
 }
 
