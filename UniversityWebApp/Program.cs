@@ -10,6 +10,18 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Allow frontend to talk to backend and send the HTTP-only cookie
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReact", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // Your Vite port
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Needed for your JWT login cookies!
+    });
+});
+
 // Add services to the container.
 builder.Services.AddControllers();
 
@@ -60,7 +72,9 @@ var app = builder.Build();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowReact");
 app.MapControllers();
+
 
 
 app.Run();

@@ -48,20 +48,16 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
-        if (user == null)
-        {
-            return BadRequest(new { Message = "Invalid email or password" });
-        }
+        if (user == null) return BadRequest(new { Message = "Invalid email or password" });
 
         var isPasswordValid = await _userManager.CheckPasswordAsync(user, model.Password);
-        if (!isPasswordValid)
-        {
-            return BadRequest(new { Message = "Invalid email or password" });
-        }
+        if (!isPasswordValid) return BadRequest(new { Message = "Invalid email or password" });
 
         var token = GenerateJwtToken(user);
         SetTokenCookie(token);
-        return Ok(new { Message = "Login successful" });
+        
+        // UPDATE THIS LINE: Add Role = user.Role so React knows who logged in!
+        return Ok(new { Message = "Login successful", Role = user.Role });
     }
 
     private string GenerateJwtToken(User user)
