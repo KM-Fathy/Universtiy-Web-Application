@@ -11,8 +11,8 @@ This is a complete, RESTful full-stack web application built for a university sy
 * **Postman:** Used for testing the API endpoints during development.
 
 ### Frontend
-* **React.js:** Used to build the dynamic, component-based user interface[cite: 42].
-* **React Router DOM:** Handles client-side routing, enabling seamless navigation without full page reloads[cite: 40].
+* **React.js:** Used to build the dynamic, component-based user interface.
+* **React Router DOM:** Handles client-side routing, enabling seamless navigation without full page reloads.
 * **Axios:** Handles API communication with the backend.
 * **CSS Variables:** Implements a clean, modern, and consistent design system with support for dark mode.
 
@@ -21,9 +21,9 @@ This is a complete, RESTful full-stack web application built for a university sy
 This project implements strict security and Role-Based Access Control (RBAC) across both the frontend and backend:
 
 * **HTTP-Only Cookies (`api.js`):** The JWT token is stored inside an HTTP-only cookie to prevent Cross-Site Scripting (XSS) attacks. The frontend uses Axios configured with `withCredentials: true` to securely and automatically attach this cookie to every request.
-* **Protected Routing (`ProtectedRoute.jsx` & `AdminRoute.jsx`):** Unauthenticated users are strictly locked out of the application and redirected to the login page. Furthermore, specific administrative pages (like the Profiles page) are guarded by `AdminRoute.jsx`, which kicks non-admin users back to the dashboard if they try to manually access the URL[cite: 40, 41].
+* **Protected Routing (`ProtectedRoute.jsx` & `AdminRoute.jsx`):** Unauthenticated users are strictly locked out of the application and redirected to the login page. Furthermore, specific administrative pages (like the Profiles page) are guarded by `AdminRoute.jsx`, which kicks non-admin users back to the dashboard if they try to manually access the URL.
 * **Dynamic Navigation (`Navbar.jsx`):** The navigation bar reads the user's role and conditionally renders links. For example, standard users will not even see the link to the Student Profiles page.
-* **Role-Based UI (`StudentsPage.jsx`, etc.):** The frontend dynamically adapts to the logged-in user[cite: 37]. Admins see data creation forms and Action columns (Edit/Delete), while standard users only see a clean, read-only list of the data[cite: 33, 35].
+* **Role-Based UI (`StudentsPage.jsx`, etc.):** The frontend dynamically adapts to the logged-in user. Admins see data creation forms and Action columns (Edit/Delete), while standard users only see a clean, read-only list of the data.
 * **Styling (`index.css`):** The application relies on a centralized set of CSS variables to maintain a professional, dark-themed UI that is fully responsive.
 
 ## How to Run the Project
@@ -51,12 +51,12 @@ This project implements strict security and Role-Based Access Control (RBAC) acr
 ## Frontend UI Showcase
 
 ### Authentication
-Users must securely log in or register before accessing the portal[cite: 38, 39].
+Users must securely log in or register before accessing the portal.
 <img width="1867" height="898" alt="Register" src="https://github.com/user-attachments/assets/02203e7c-ca5e-4459-868a-fb153c23d8a4" />
 <img width="1867" height="896" alt="Login" src="https://github.com/user-attachments/assets/29634142-7bb0-4513-8310-86ef92cef3ed" />
 
 ### Dashboards (Role-Based)
-The dashboard fetches live statistics concurrently and greets the user based on their role[cite: 34].
+The dashboard fetches live statistics concurrently and greets the user based on their role.
 **Admin Dashboard:**
 <img width="1866" height="897" alt="Admin - Dashboard" src="https://github.com/user-attachments/assets/2831eb63-2c8a-4db7-9ddd-498fb6156c69" />
 
