@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
             FirstName = model.FirstName,
             LastName = model.LastName,
             PhoneNumber = model.PhoneNumber,
-            Role = "User"
+            Role = "Student"
         };
 
         var result = await _userManager.CreateAsync(user, model.Password);

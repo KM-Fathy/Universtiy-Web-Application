@@ -29,7 +29,7 @@ function Login() {
     return (
         <div className="auth-container">
             <form className="auth-form" onSubmit={handleSubmit}>
-                <h2>Log In</h2>
+                <h2>Login</h2>
                 {error && <p className="error-text">{error}</p>}
                 
                 <div className="form-group">
