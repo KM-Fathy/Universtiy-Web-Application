@@ -2,7 +2,6 @@ using UniversityWebApp.DTOs;
 using UniversityWebApp.Models;
 
 namespace UniversityWebApp.Interfaces
-
 {
     public interface IStudentService
     {
@@ -12,6 +11,8 @@ namespace UniversityWebApp.Interfaces
         Task<bool> RegisterStudentInCourse(int studentId, int courseId);
         Task UpdateStudent(StudentUpdateDto studentDto, int id);
         Task DeleteStudent(int id);
+        
+        // NEW: Fetch the specific user's dashboard data
+        Task<object?> GetMyProfile(string userId);
     }
-    
 }

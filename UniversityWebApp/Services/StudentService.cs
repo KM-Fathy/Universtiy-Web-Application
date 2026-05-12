@@ -15,15 +15,14 @@ namespace UniversityWebApp.Services
             _context = context;
         }
         
-
         public async Task<IEnumerable<StudentDto>> GetAllStudents()
         {
-            return await _context.Students.Include(s => s.Courses).AsNoTracking().Select(s => new StudentDto
+            return await _context.Students.Include(s => s.Courses).Include(s => s.Department).AsNoTracking().Select(s => new StudentDto
             {
                 Id = s.Id,
                 Name = s.Name,
                 CourseTitles = s.Courses.Select(c => c.Title).ToList(),
-                DepartmentName = s.Department.Name
+                DepartmentName = s.Department != null ? s.Department.Name : "Unassigned"
             }).ToListAsync();
         }
 
@@ -37,7 +36,7 @@ namespace UniversityWebApp.Services
                 Id = student.Id,
                 Name = student.Name,
                 CourseTitles = student.Courses.Select(c => c.Title).ToList(),
-                DepartmentName = student.Department.Name
+                DepartmentName = student.Department != null ? student.Department.Name : "Unassigned"
             };
         }
 
@@ -49,27 +48,15 @@ namespace UniversityWebApp.Services
         
         public async Task<bool> RegisterStudentInCourse(int studentId, int courseId)
         {
-            // Get the student and include their courses so we can add to the list
             var student = await _context.Students
                 .Include(s => s.Courses)
                 .FirstOrDefaultAsync(s => s.Id == studentId);
 
-            // Get the course
             var course = await _context.Courses.FindAsync(courseId);
 
-            // Make sure both exist
-            if (student == null || course == null)
-            {
-                return false; 
-            }
+            if (student == null || course == null) return false; 
+            if (student.Courses.Any(c => c.Id == courseId)) return false;
 
-            // Prevent adding the same course twice
-            if (student.Courses.Any(c => c.Id == courseId))
-            {
-                return false;
-            }
-
-            // Add the course to the student and save
             student.Courses.Add(course);
             await _context.SaveChangesAsync();
 
@@ -83,7 +70,7 @@ namespace UniversityWebApp.Services
             if (existingStudent != null)
             {
                 existingStudent.Name = studentDto.Name;
-                existingStudent.Major = studentDto.Major;
+                existingStudent.Major = studentDto.Major; // If front-end doesn't send this, it becomes null, which is correct!
                 existingStudent.DepartmentId = studentDto.DepartmentId;
 
                 _context.Students.Update(existingStudent); 
@@ -93,13 +80,44 @@ namespace UniversityWebApp.Services
 
         public async Task DeleteStudent(int id)
         {
-            
             var student = await _context.Students.FindAsync(id);
             if (student != null)
             {
                 _context.Students.Remove(student);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        // ==========================================
+        // NEW: STUDENT DASHBOARD DATA ENGINE
+        // ==========================================
+        public async Task<object?> GetMyProfile(string userId)
+        {
+            var student = await _context.Students
+                .Include(s => s.Department)
+                .Include(s => s.Courses)
+                    .ThenInclude(c => c.Students) // Fetch the classmates!
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.UserId == userId);
+
+            if (student == null) return null;
+
+            // Package the data nicely for the React frontend
+            return new
+            {
+                Name = student.Name,
+                Department = student.Department != null ? student.Department.Name : "Unassigned",
+                Courses = student.Courses.Select(c => new
+                {
+                    Title = c.Title,
+                    Credits = c.Credits,
+                    // Get classmates, but exclude the current student's own name
+                    Classmates = c.Students
+                        .Where(cs => cs.Id != student.Id)
+                        .Select(cs => cs.Name)
+                        .ToList()
+                })
+            };
         }
     }
 }

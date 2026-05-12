@@ -25,7 +25,6 @@ function Login() {
             setError("Invalid credentials. Please try again.");
         }
     };
-
     return (
         <div className="auth-container">
             <form className="auth-form" onSubmit={handleSubmit}>
