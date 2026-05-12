@@ -11,44 +11,52 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         try {
-            // Get the response so we can read the role
             const response = await api.post('/auth/login', credentials);
-            
             localStorage.setItem('isAuthenticated', 'true');
-            // SAVE THE ROLE HERE:
             localStorage.setItem('userRole', response.data.role); 
-            
             navigate('/');
         } catch (err) {
             console.error("Login error:", err);
             setError("Invalid credentials. Please try again.");
         }
     };
+
     return (
-        <div className="auth-container">
-            <form className="auth-form" onSubmit={handleSubmit}>
-                <h2>Login</h2>
-                {error && <p className="error-text">{error}</p>}
+        <div className="auth-wrapper">
+            <div className="auth-box">
+                <h2 style={{ textAlign: 'center', marginBottom: '24px', fontSize: '28px' }}>Welcome Back</h2>
                 
-                <div className="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" onChange={handleChange} required />
-                </div>
-                <div className="form-group">
-                    <label>Phone Number</label>
-                    <input type="text" name="phoneNumber" onChange={handleChange} required />
-                </div>
-                <div className="form-group">
-                    <label>Password</label>
-                    <input type="password" name="password" onChange={handleChange} required />
-                </div>
+                {error && (
+                    <div style={{ color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.1)', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px', border: '1px solid var(--danger)', textAlign: 'center' }}>
+                        {error}
+                    </div>
+                )}
                 
-                <button type="submit" className="btn">Login</button>
-                <p style={{marginTop: '15px', textAlign: 'center'}}>
-                    No account? <Link to="/register">Register here</Link>
-                </p>
-            </form>
+                <form onSubmit={handleSubmit}>
+                    <div className="input-group">
+                        <label>Email Address</label>
+                        <input type="email" name="email" onChange={handleChange} required placeholder="student@university.edu" />
+                    </div>
+                    <div className="input-group">
+                        <label>Phone Number</label>
+                        <input type="text" name="phoneNumber" onChange={handleChange} required placeholder="Enter your phone number" />
+                    </div>
+                    <div className="input-group">
+                        <label>Password</label>
+                        <input type="password" name="password" onChange={handleChange} required placeholder="Enter your password" />
+                    </div>
+                    
+                    <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '16px', padding: '12px' }}>
+                        Sign In
+                    </button>
+                    
+                    <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: 'var(--text-muted)' }}>
+                        Don't have an account? <Link to="/register" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '500' }}>Register here</Link>
+                    </p>
+                </form>
+            </div>
         </div>
     );
 }

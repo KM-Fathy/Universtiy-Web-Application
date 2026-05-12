@@ -9,8 +9,10 @@ function DepartmentsPage() {
     const userRole = localStorage.getItem('userRole');
 
     const fetchDepartments = async () => {
-        try { const response = await api.get('/departments'); setDepartments(response.data); } 
-        catch (err) { console.error(err); }
+        try { 
+            const response = await api.get('/departments'); 
+            setDepartments(response.data); 
+        } catch (err) { console.error(err); }
     };
 
     useEffect(() => { fetchDepartments(); }, []);
@@ -29,49 +31,72 @@ function DepartmentsPage() {
     };
 
     const handleEdit = (dept) => { setFormData({ id: dept.id, name: dept.name }); setIsEditing(true); };
-    const handleDelete = async (id) => { if (window.confirm("Delete department?")) { try { await api.delete(`/departments/${id}`); fetchDepartments(); } catch (err) { alert("Failed to delete."); } } };
+    const handleDelete = async (id) => { 
+        if (window.confirm("Delete department?")) { 
+            try { await api.delete(`/departments/${id}`); fetchDepartments(); } 
+            catch (err) { alert("Failed to delete."); } 
+        } 
+    };
 
     return (
-        <div>
+        <div className="admin-page">
             <Navbar />
-            <div className="container" style={{ display: 'flex', gap: '40px' }}>
+            <div className="page-container" style={{ display: 'grid', gridTemplateColumns: userRole === 'Admin' ? '350px 1fr' : '1fr', gap: '40px' }}>
+                
                 {userRole === 'Admin' && (
-                    <div style={{ flex: '1' }}>
-                        <h2>{isEditing ? "Edit Department" : "Add New Department"}</h2>
-                        <form className="auth-form" onSubmit={handleSubmit}>
-                            <div className="form-group"><label>Department Name</label><input type="text" name="name" value={formData.name} onChange={handleChange} required minLength="2" maxLength="100" /></div>
-                            <button type="submit" className="btn">{isEditing ? "Update Department" : "Create Department"}</button>
-                            {isEditing && <button type="button" onClick={() => { setIsEditing(false); setFormData({ id: null, name: '' }); }} style={{marginTop: '10px', background: 'gray', color: 'white', padding: '10px', width: '100%', border: 'none', borderRadius: '5px', cursor: 'pointer'}}>Cancel Edit</button>}
-                        </form>
-                    </div>
+                    <aside>
+                        <div className="card">
+                            <h2 style={{ marginBottom: '24px' }}>{isEditing ? "Update Dept" : "New Dept"}</h2>
+                            <form onSubmit={handleSubmit}>
+                                <div className="input-group">
+                                    <label>Department Name</label>
+                                    <input type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="e.g. Computer Science" />
+                                </div>
+                                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                                    {isEditing ? "Apply Changes" : "Create Department"}
+                                </button>
+                                {isEditing && (
+                                    <button type="button" onClick={() => { setIsEditing(false); setFormData({ id: null, name: '' }); }} className="btn btn-danger" style={{ width: '100%', marginTop: '12px' }}>
+                                        Cancel
+                                    </button>
+                                )}
+                            </form>
+                        </div>
+                    </aside>
                 )}
 
-                <div style={{ flex: userRole === 'Admin' ? '2' : '1' }}>
-                    <h2>Department List</h2>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', backgroundColor: 'var(--code-bg)' }}>
-                        <thead>
-                            <tr style={{ background: 'var(--accent)', color: 'white', textAlign: 'left' }}>
-                                <th style={{ padding: '12px' }}>ID</th>
-                                <th style={{ padding: '12px' }}>Name</th>
-                                {userRole === 'Admin' && <th style={{ padding: '12px' }}>Actions</th>}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {departments.map(d => (
-                                <tr key={d.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '12px' }}>{d.id}</td>
-                                    <td style={{ padding: '12px' }}>{d.name}</td>
-                                    {userRole === 'Admin' && (
-                                        <td style={{ padding: '12px' }}>
-                                            <button onClick={() => handleEdit(d)} style={{ marginRight: '10px', cursor: 'pointer', background: 'none', border: 'none', color: 'var(--accent)', fontWeight: 'bold' }}>Edit</button>
-                                            <button onClick={() => handleDelete(d.id)} style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#d93025', fontWeight: 'bold' }}>Delete</button>
-                                        </td>
-                                    )}
+                <main>
+                    <header style={{ marginBottom: '24px' }}>
+                        <h1>University Departments</h1>
+                        <p>Managing {departments.length} institutional divisions</p>
+                    </header>
+
+                    <div className="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Department Name</th>
+                                    {userRole === 'Admin' && <th style={{ textAlign: 'right' }}>Actions</th>}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {departments.map(d => (
+                                    <tr key={d.id}>
+                                        <td><span className="badge">#{d.id}</span></td>
+                                        <td style={{ fontWeight: '600' }}>{d.name}</td>
+                                        {userRole === 'Admin' && (
+                                            <td style={{ textAlign: 'right' }}>
+                                                <button onClick={() => handleEdit(d)} className="action-btn" style={{ marginRight: '8px' }}>Edit</button>
+                                                <button onClick={() => handleDelete(d.id)} className="action-btn" style={{ color: 'var(--danger)' }}>Delete</button>
+                                            </td>
+                                        )}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
             </div>
         </div>
     );

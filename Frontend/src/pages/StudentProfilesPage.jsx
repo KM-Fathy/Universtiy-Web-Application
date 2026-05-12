@@ -29,56 +29,94 @@ function StudentProfilesPage() {
         } catch (err) { alert("Failed to save profile."); }
     };
 
-    const handleEdit = (profile) => { setFormData({ id: profile.id, address: profile.address, dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.split('T')[0] : '', studentId: profile.studentId }); setIsEditing(true); };
-    const handleDelete = async (id) => { if (window.confirm("Delete profile?")) { try { await api.delete(`/studentprofiles/${id}`); fetchProfiles(); } catch (err) { console.error(err); } } };
+    const handleEdit = (profile) => { 
+        setFormData({ 
+            id: profile.id, 
+            address: profile.address, 
+            dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.split('T')[0] : '', 
+            studentId: profile.studentId 
+        }); 
+        setIsEditing(true); 
+    };
+
+    const handleDelete = async (id) => { 
+        if (window.confirm("Delete profile?")) { 
+            try { await api.delete(`/studentprofiles/${id}`); fetchProfiles(); } 
+            catch (err) { console.error(err); } 
+        } 
+    };
 
     return (
-        <div>
+        <div className="admin-page">
             <Navbar />
-            <div className="container" style={{ display: 'flex', gap: '40px' }}>
+            <div className="page-container" style={{ display: 'grid', gridTemplateColumns: userRole === 'Admin' ? '350px 1fr' : '1fr', gap: '40px' }}>
+                
                 {userRole === 'Admin' && (
-                    <div style={{ flex: '1' }}>
-                        <h2>{isEditing ? "Edit Profile" : "Add New Profile"}</h2>
-                        <form className="auth-form" onSubmit={handleSubmit}>
-                            <div className="form-group"><label>Address</label><input type="text" name="address" value={formData.address} onChange={handleChange} required /></div>
-                            <div className="form-group"><label>Date of Birth</label><input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} required /></div>
-                            <div className="form-group"><label>Student ID</label><input type="number" name="studentId" value={formData.studentId} onChange={handleChange} required /></div>
-                            <button type="submit" className="btn">{isEditing ? "Update Profile" : "Create Profile"}</button>
-                            {isEditing && <button type="button" onClick={() => { setIsEditing(false); setFormData({ id: null, address: '', dateOfBirth: '', studentId: '' }); }} style={{marginTop: '10px', background: 'gray', color: 'white', padding: '10px', width: '100%', border: 'none', borderRadius: '5px', cursor: 'pointer'}}>Cancel Edit</button>}
-                        </form>
-                    </div>
+                    <aside>
+                        <div className="card">
+                            <h2 style={{ marginBottom: '24px' }}>{isEditing ? "Edit Bio" : "New Profile"}</h2>
+                            <form onSubmit={handleSubmit}>
+                                <div className="input-group">
+                                    <label>Full Address</label>
+                                    <input type="text" name="address" value={formData.address} onChange={handleChange} required placeholder="123 University Ave" />
+                                </div>
+                                <div className="input-group">
+                                    <label>Date of Birth</label>
+                                    <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} required />
+                                </div>
+                                <div className="input-group">
+                                    <label>Student ID (Numeric)</label>
+                                    <input type="number" name="studentId" value={formData.studentId} onChange={handleChange} required placeholder="17" />
+                                </div>
+                                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                                    {isEditing ? "Update Records" : "Link Profile"}
+                                </button>
+                                {isEditing && (
+                                    <button type="button" onClick={() => { setIsEditing(false); setFormData({ id: null, address: '', dateOfBirth: '', studentId: '' }); }} className="btn btn-danger" style={{ width: '100%', marginTop: '12px' }}>
+                                        Cancel
+                                    </button>
+                                )}
+                            </form>
+                        </div>
+                    </aside>
                 )}
 
-                <div style={{ flex: userRole === 'Admin' ? '2' : '1' }}>
-                    <h2>Student Profiles List</h2>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', backgroundColor: 'var(--code-bg)' }}>
-                        <thead>
-                            <tr style={{ background: 'var(--accent)', color: 'white', textAlign: 'left' }}>
-                                <th style={{ padding: '12px' }}>ID</th>
-                                <th style={{ padding: '12px' }}>Student ID</th>
-                                <th style={{ padding: '12px' }}>Address</th>
-                                <th style={{ padding: '12px' }}>Date of Birth</th>
-                                {userRole === 'Admin' && <th style={{ padding: '12px' }}>Actions</th>}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {profiles.map(p => (
-                                <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '12px' }}>{p.id}</td>
-                                    <td style={{ padding: '12px' }}>{p.studentId}</td>
-                                    <td style={{ padding: '12px' }}>{p.address}</td>
-                                    <td style={{ padding: '12px' }}>{new Date(p.dateOfBirth).toLocaleDateString()}</td>
-                                    {userRole === 'Admin' && (
-                                        <td style={{ padding: '12px' }}>
-                                            <button onClick={() => handleEdit(p)} style={{ marginRight: '10px', cursor: 'pointer', background: 'none', border: 'none', color: 'var(--accent)', fontWeight: 'bold' }}>Edit</button>
-                                            <button onClick={() => handleDelete(p.id)} style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#d93025', fontWeight: 'bold' }}>Delete</button>
-                                        </td>
-                                    )}
+                <main>
+                    <header style={{ marginBottom: '24px' }}>
+                        <h1>Student Profiles</h1>
+                        <p>Detailed personal records and identity management</p>
+                    </header>
+
+                    <div className="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Owner ID</th>
+                                    <th>Location</th>
+                                    <th>Birth Date</th>
+                                    {userRole === 'Admin' && <th style={{ textAlign: 'right' }}>Actions</th>}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {profiles.map(p => (
+                                    <tr key={p.id}>
+                                        <td><span className="badge">#{p.id}</span></td>
+                                        <td><span className="badge active">Student #{p.studentId}</span></td>
+                                        <td style={{ color: 'var(--text-main)' }}>{p.address}</td>
+                                        <td>{new Date(p.dateOfBirth).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                                        {userRole === 'Admin' && (
+                                            <td style={{ textAlign: 'right' }}>
+                                                <button onClick={() => handleEdit(p)} className="action-btn" style={{ marginRight: '8px' }}>Edit</button>
+                                                <button onClick={() => handleDelete(p.id)} className="action-btn" style={{ color: 'var(--danger)' }}>Delete</button>
+                                            </td>
+                                        )}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
             </div>
         </div>
     );

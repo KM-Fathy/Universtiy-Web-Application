@@ -15,145 +15,90 @@ function StudentsPage() {
         }
     };
 
-    useEffect(() => { 
-        fetchStudents(); 
-    }, []);
+    useEffect(() => { fetchStudents(); }, []);
 
-    // --- NEW: Change Department ---
-    // --- Change Department ---
     const handleChangeDepartment = async (student) => {
-        const input = window.prompt(`Enter the NEW Department ID for ${student.name}:`);
-        if (!input) return; // Stop if they click cancel
-
-        const deptId = parseInt(input);
-        if (isNaN(deptId)) {
-            alert("Error: You must type a numeric ID.");
-            return;
-        }
-
+        const input = window.prompt(`Enter NEW Dept ID for ${student.name}:`);
+        if (!input) return;
         try {
-            // CRITICAL FIX: We must send an empty 'major' string so the C# DTO doesn't reject it!
-            await api.put(`/students/${student.id}`, { 
-                name: student.name,
-                departmentId: deptId 
-            });
-            alert("Department updated!");
+            await api.put(`/students/${student.id}`, { name: student.name, departmentId: parseInt(input) });
             fetchStudents();
-        } catch (err) {
-            alert("Failed to update department. Are you sure that Department ID exists?");
-        }
+        } catch (err) { alert("Update failed."); }
     };
 
-    // --- Add Course ---
-    const handleAddCourse = async (studentId) => {
-        const input = window.prompt("Enter the exact NUMERIC Course ID to ADD (e.g., 1, 2, 3):");
-        if (!input) return; 
-
-        const courseId = parseInt(input);
-        if (isNaN(courseId)) { alert("Error: You must type a number!"); return; }
-
-        try { 
-            await api.post(`/students/${studentId}/courses/${courseId}`); 
-            alert("Course added!"); 
-            fetchStudents(); 
-        } 
-        catch (err) { alert("Failed to add course. Make sure the ID exists and they aren't already in it."); }
+    const handleAddCourse = async (id) => {
+        const input = window.prompt("Enter Course ID to ADD:");
+        if (input) try { await api.post(`/students/${id}/courses/${input}`); fetchStudents(); } catch (err) { alert("Failed to add."); }
     };
 
-    // --- NEW: Remove Course ---
-    const handleRemoveCourse = async (studentId) => {
-        const input = window.prompt("Enter the exact NUMERIC Course ID to REMOVE:");
-        if (!input) return; 
-
-        const courseId = parseInt(input);
-        if (isNaN(courseId)) { alert("Error: You must type a number!"); return; }
-
-        try { 
-            await api.delete(`/students/${studentId}/courses/${courseId}`); 
-            alert("Course removed!"); 
-            fetchStudents(); 
-        } 
-        catch (err) { alert("Failed to remove course. Are they actually assigned to it?"); }
+    const handleRemoveCourse = async (id) => {
+        const input = window.prompt("Enter Course ID to REMOVE:");
+        if (input) try { await api.delete(`/students/${id}/courses/${input}`); fetchStudents(); } catch (err) { alert("Failed to remove."); }
     };
 
-    // --- Delete Student ---
     const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to completely delete this student account?")) {
-            try { await api.delete(`/students/${id}`); fetchStudents(); } 
-            catch (err) { console.error(err); }
-        }
+        if (window.confirm("Delete account?")) try { await api.delete(`/students/${id}`); fetchStudents(); } catch (err) { alert("Delete failed."); }
     };
 
     return (
-        <div>
+        <div className="directory-wrapper">
             <Navbar />
-            <div className="container" style={{ padding: '20px' }}>
-                
-                <h2>Student Directory</h2>
-                <p style={{ color: 'var(--text)', marginBottom: '20px' }}>
-                    {userRole === 'Admin' 
-                        ? "Manage student departments and course enrollments below. New students must register via the Register page." 
-                        : "View the list of students."}
-                </p>
+            <div className="page-container">
+                <header style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <div>
+                        <h1>Student Directory</h1>
+                        <p>Total Registered: {students.length} students</p>
+                    </div>
+                    {userRole === 'Admin' && <span className="badge active">ADMIN MANAGEMENT MODE</span>}
+                </header>
 
-                <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'var(--code-bg)' }}>
-                    <thead>
-                        <tr style={{ background: 'var(--accent)', color: 'white', textAlign: 'left' }}>
-                            <th style={{ padding: '12px' }}>ID</th>
-                            <th style={{ padding: '12px' }}>Name</th>
-                            <th style={{ padding: '12px' }}>Department</th>
-                            <th style={{ padding: '12px' }}>Courses</th>
-                            {userRole === 'Admin' && <th style={{ padding: '12px' }}>Actions</th>}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {students.map((s) => (
-                            <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                <td style={{ padding: '12px' }}>{s.id}</td>
-                                <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--text-h)' }}>{s.name}</td>
-                                <td style={{ padding: '12px', color: s.departmentName ? 'inherit' : '#d93025' }}>
-                                    {s.departmentName || 'Not Assigned'}
-                                </td>
-                                <td style={{ padding: '12px' }}>
-                                    {s.courseTitles && s.courseTitles.length > 0 ? s.courseTitles.join(', ') : 'None'}
-                                </td>
-                                
-                                {userRole === 'Admin' && (
-                                    <td style={{ padding: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                        <button onClick={() => handleChangeDepartment(s)} style={actionBtnStyle('var(--accent)')}>
-                                            Dept
-                                        </button>
-                                        <button onClick={() => handleAddCourse(s.id)} style={actionBtnStyle('green')}>
-                                            + Course
-                                        </button>
-                                        <button onClick={() => handleRemoveCourse(s.id)} style={actionBtnStyle('#fbbc04')}>
-                                            - Course
-                                        </button>
-                                        <button onClick={() => handleDelete(s.id)} style={actionBtnStyle('#d93025')}>
-                                            Delete
-                                        </button>
-                                    </td>
-                                )}
+                <div className="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Department</th>
+                                <th>Enrollments</th>
+                                {userRole === 'Admin' && <th style={{ textAlign: 'right' }}>Actions</th>}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-
+                        </thead>
+                        <tbody>
+                            {students.map((s) => (
+                                <tr key={s.id}>
+                                    <td><span className="badge">#{s.id}</span></td>
+                                    <td style={{ fontWeight: '600' }}>{s.name}</td>
+                                    <td>
+                                        <span className={s.departmentName ? "text-main" : "error-text"} style={{ fontSize: '14px', background: 'none', border: 'none', padding: 0 }}>
+                                            {s.departmentName || 'PENDING ASSIGNMENT'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                            {s.courseTitles?.length > 0 
+                                                ? s.courseTitles.map((t, i) => <span key={i} className="badge" style={{ fontSize: '11px' }}>{t}</span>)
+                                                : <span style={{ color: 'var(--text-muted)', fontSize: '12px italic' }}>No courses</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    {userRole === 'Admin' && (
+                                        <td style={{ textAlign: 'right' }}>
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                <button onClick={() => handleChangeDepartment(s)} className="action-btn">Dept</button>
+                                                <button onClick={() => handleAddCourse(s.id)} className="action-btn" style={{ color: 'var(--success)' }}>+ Course</button>
+                                                <button onClick={() => handleRemoveCourse(s.id)} className="action-btn" style={{ color: 'var(--warning)' }}>- Course</button>
+                                                <button onClick={() => handleDelete(s.id)} className="action-btn" style={{ color: 'var(--danger)' }}>Del</button>
+                                            </div>
+                                        </td>
+                                    )}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
 }
-
-// A quick helper to make the buttons look nice without cluttering the HTML
-const actionBtnStyle = (color) => ({
-    cursor: 'pointer', 
-    background: 'none', 
-    border: `1px solid ${color}`, 
-    color: color, 
-    fontWeight: 'bold',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    fontSize: '12px'
-});
 
 export default StudentsPage;
