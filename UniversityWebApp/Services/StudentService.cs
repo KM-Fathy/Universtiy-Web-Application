@@ -70,7 +70,6 @@ namespace UniversityWebApp.Services
             if (existingStudent != null)
             {
                 existingStudent.Name = studentDto.Name;
-                existingStudent.Major = studentDto.Major; // If front-end doesn't send this, it becomes null, which is correct!
                 existingStudent.DepartmentId = studentDto.DepartmentId;
 
                 _context.Students.Update(existingStudent); 
@@ -88,36 +87,58 @@ namespace UniversityWebApp.Services
             }
         }
 
-        // ==========================================
-        // NEW: STUDENT DASHBOARD DATA ENGINE
-        // ==========================================
+       
         public async Task<object?> GetMyProfile(string userId)
         {
+            // 1. Fetch the data from the database safely without complex formatting
             var student = await _context.Students
                 .Include(s => s.Department)
                 .Include(s => s.Courses)
                     .ThenInclude(c => c.Students) // Fetch the classmates!
-                .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.UserId == userId);
 
+            // If they aren't in the database, return null
             if (student == null) return null;
 
-            // Package the data nicely for the React frontend
-            return new
+            // 2. Format the data IN MEMORY (This prevents the 500 SQL Crash!)
+            var result = new
             {
                 Name = student.Name,
                 Department = student.Department != null ? student.Department.Name : "Unassigned",
+                
+                // Map over the courses safely
                 Courses = student.Courses.Select(c => new
                 {
                     Title = c.Title,
                     Credits = c.Credits,
-                    // Get classmates, but exclude the current student's own name
-                    Classmates = c.Students
-                        .Where(cs => cs.Id != student.Id)
-                        .Select(cs => cs.Name)
-                        .ToList()
-                })
+                    
+                    // Filter out the logged-in student so they only see OTHER classmates
+                    Classmates = c.Students != null 
+                        ? c.Students.Where(cs => cs.Id != student.Id).Select(cs => cs.Name).ToList() 
+                        : new List<string>()
+                }).ToList()
             };
+
+            return result;
+        }
+
+        public async Task<bool> RemoveStudentFromCourse(int studentId, int courseId)
+        {
+            var student = await _context.Students
+                .Include(s => s.Courses)
+                .FirstOrDefaultAsync(s => s.Id == studentId);
+
+            if (student == null) return false;
+
+            // Find the specific course in their list
+            var course = student.Courses.FirstOrDefault(c => c.Id == courseId);
+            if (course == null) return false; // They aren't in this course!
+
+            // Remove it and save
+            student.Courses.Remove(course);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

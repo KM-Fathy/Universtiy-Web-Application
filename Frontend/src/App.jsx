@@ -7,7 +7,7 @@ import CoursesPage from './pages/CoursesPage';
 import DepartmentsPage from './pages/DepartmentsPage'; 
 import StudentProfilesPage from './pages/StudentProfilesPage'; 
 import ProtectedRoute from './components/ProtectedRoute';
-import AdminRoute from './components/AdminRoute'; // <-- Import your new Admin Gatekeeper
+import AdminRoute from './components/AdminRoute'; 
 
 function App() {
     return (
@@ -15,13 +15,13 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* Regular Protected Routes (Accessible by both Students and Admins) */}
+            {/* Dashboard is the ONLY protected route both roles share */}
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/students" element={<ProtectedRoute><StudentsPage /></ProtectedRoute>} />
-            <Route path="/courses" element={<ProtectedRoute><CoursesPage /></ProtectedRoute>} />
-            <Route path="/departments" element={<ProtectedRoute><DepartmentsPage /></ProtectedRoute>} />
             
-            {/* ADMIN ONLY ROUTE */}
+            {/* ADMIN ONLY ROUTES - Students can no longer access these! */}
+            <Route path="/students" element={<AdminRoute><StudentsPage /></AdminRoute>} />
+            <Route path="/courses" element={<AdminRoute><CoursesPage /></AdminRoute>} />
+            <Route path="/departments" element={<AdminRoute><DepartmentsPage /></AdminRoute>} />
             <Route path="/profiles" element={<AdminRoute><StudentProfilesPage /></AdminRoute>} />
 
             <Route path="*" element={<Navigate to="/login" />} />

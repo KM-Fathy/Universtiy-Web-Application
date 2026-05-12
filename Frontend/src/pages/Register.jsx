@@ -13,11 +13,26 @@ function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(''); // Clear any previous errors before trying again
+        
         try {
             await api.post('/auth/register', formData);
             navigate('/login'); // Send to login upon success
         } catch (err) {
-            setError("Registration failed. Please check your details.");
+            console.error("Full error response:", err.response);
+
+            // Check if the backend sent a specific Identity error array
+            if (err.response && err.response.data && Array.isArray(err.response.data)) {
+                // Display the exact reason it failed (e.g., "Password requires an uppercase letter")
+                setError(err.response.data[0].description);
+            } 
+            // Check if there is a general message
+            else if (err.response && err.response.data && err.response.data.Message) {
+                setError(err.response.data.Message);
+            } 
+            else {
+                setError("Registration failed. Please check your details.");
+            }
         }
     };
 
@@ -25,7 +40,9 @@ function Register() {
         <div className="auth-container">
             <form className="auth-form" onSubmit={handleSubmit}>
                 <h2>Register</h2>
-                {error && <p className="error-text">{error}</p>}
+                
+                {/* Error message will now show EXACTLY what is wrong */}
+                {error && <p className="error-text" style={{ color: '#d93025', fontWeight: 'bold', textAlign: 'center' }}>{error}</p>}
                 
                 <div className="form-group"><label>Username</label><input type="text" name="userName" onChange={handleChange} required /></div>
                 <div className="form-group"><label>Email</label><input type="email" name="email" onChange={handleChange} required /></div>

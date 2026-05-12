@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using UniversityWebApp.Models;
 using UniversityWebApp.DTOs;
-using UniversityWebApp.Database; // 1. Added this to access your ApplicationDbContext
+using UniversityWebApp.Database;
 
 namespace UniversityWebApp.Controllers;
 
@@ -16,9 +16,8 @@ public class AuthController : ControllerBase
 {
     private readonly UserManager<User> _userManager;
     private readonly IConfiguration _configuration;
-    private readonly ApplicationDbContext _context; // 2. Added the Database Context
+    private readonly ApplicationDbContext _context;
 
-    // 3. Injected ApplicationDbContext into the constructor
     public AuthController(UserManager<User> userManager, IConfiguration configuration, ApplicationDbContext context)
     {
         _userManager = userManager;
@@ -42,17 +41,16 @@ public class AuthController : ControllerBase
         var result = await _userManager.CreateAsync(user, model.Password);
         if (result.Succeeded)
         {
-            // 4. THE MAGIC: Auto-create the blank Student record!
+            // Auto-create the blank Student record
             var newStudent = new Student
             {
-                Name = $"{model.FirstName} {model.LastName}", // Combine first and last name
-                UserId = user.Id, // Link this student exactly to the newly created login account
-                Major = null, // Leave empty initially
-                DepartmentId = null // Leave empty for the Admin to assign later
+                Name = $"{model.FirstName} {model.LastName}", 
+                UserId = user.Id, 
+                DepartmentId = null 
             };
 
             _context.Students.Add(newStudent);
-            await _context.SaveChangesAsync(); // Save the new student to the database
+            await _context.SaveChangesAsync();
 
             var token = GenerateJwtToken(user);
             SetTokenCookie(token);
@@ -73,7 +71,6 @@ public class AuthController : ControllerBase
         var token = GenerateJwtToken(user);
         SetTokenCookie(token);
         
-        // This sends the Role back to React so we know if they are an Admin or Student!
         return Ok(new { Message = "Login successful", Role = user.Role });
     }
 
@@ -81,6 +78,9 @@ public class AuthController : ControllerBase
     {
         var claims = new[]
         {
+            // CRITICAL ADDITION: This allows the backend to find the logged-in user's ID
+            new Claim(ClaimTypes.NameIdentifier, user.Id), 
+            
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),

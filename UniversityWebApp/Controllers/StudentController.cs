@@ -70,7 +70,6 @@ namespace UniversityApp.Controllers
             var student = new Student
             {
                 Name = studentDto.Name,
-                Major = null, // Set to null since we removed it from the UI
                 DepartmentId = studentDto.DepartmentId
             };
 
@@ -115,6 +114,20 @@ namespace UniversityApp.Controllers
             await studentService.DeleteStudent(id);
             
             return Ok(student);
+        }
+
+        [HttpDelete("{id}/courses/{courseId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RemoveFromCourse(int id, int courseId)
+        {
+            var success = await studentService.RemoveStudentFromCourse(id, courseId);
+
+            if (!success)
+            {
+                return BadRequest("Failed to remove course. Please check if the student is actually registered in that Course ID.");
+            }
+
+            return Ok(new { Message = "Student removed from the course successfully." });
         }
     }
 }

@@ -14,5 +14,7 @@ namespace UniversityWebApp.Interfaces
         
         // NEW: Fetch the specific user's dashboard data
         Task<object?> GetMyProfile(string userId);
+
+        Task<bool> RemoveStudentFromCourse(int studentId, int courseId); // ADD THIS
     }
 }

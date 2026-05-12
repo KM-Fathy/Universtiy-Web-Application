@@ -11,10 +11,7 @@ namespace UniversityWebApp.DTOs
 
         [Required]
         [MaxLength(50)]
-        public string Major { get; set; }
-
-        [Required]
-        [Range(1, int.MaxValue)]
+        
         public int DepartmentId { get; set; }
     }
 }
