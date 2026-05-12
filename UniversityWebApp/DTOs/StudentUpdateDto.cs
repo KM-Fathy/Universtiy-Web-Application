@@ -9,9 +9,6 @@ namespace UniversityWebApp.DTOs
         [MaxLength(100)]
         public string Name { get; set; }
 
-        [Required]
-        [MaxLength(50)]
-        
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
     }
 }

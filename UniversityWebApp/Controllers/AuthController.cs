@@ -35,26 +35,31 @@ public class AuthController : ControllerBase
             FirstName = model.FirstName,
             LastName = model.LastName,
             PhoneNumber = model.PhoneNumber,
-            Role = "Student" // Standard users default to Student role
+            
+            // Note: Change "Student" to "Admin" here temporarily if you need to create another admin account
+            Role = "Student" 
         };
 
         var result = await _userManager.CreateAsync(user, model.Password);
         if (result.Succeeded)
         {
-            // Auto-create the blank Student record
-            var newStudent = new Student
+            // THE FIX: Only create a blank Student record if the user is ACTUALLY a Student!
+            if (user.Role == "Student")
             {
-                Name = $"{model.FirstName} {model.LastName}", 
-                UserId = user.Id, 
-                DepartmentId = null 
-            };
+                var newStudent = new Student
+                {
+                    Name = $"{model.FirstName} {model.LastName}", 
+                    UserId = user.Id, 
+                    DepartmentId = null 
+                };
 
-            _context.Students.Add(newStudent);
-            await _context.SaveChangesAsync();
+                _context.Students.Add(newStudent);
+                await _context.SaveChangesAsync();
+            }
 
             var token = GenerateJwtToken(user);
             SetTokenCookie(token);
-            return Ok(new { Message = "User and Student Profile registered successfully" });
+            return Ok(new { Message = "User registered successfully" });
         }
         return BadRequest(result.Errors);
     }
