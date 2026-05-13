@@ -1,4 +1,4 @@
-# University Web Portal (Full-Stack Application)
+# University Web Application (Full-Stack Application)
 
 This is a complete, RESTful full-stack web application built for a university system. It manages students, courses, departments, and student profiles. The project features a robust C# backend and a magnificent, role-based React frontend utilizing a custom Modern Dark SaaS design system.
 
